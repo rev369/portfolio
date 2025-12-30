@@ -1,0 +1,326 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-sans: 'Space Grotesk', sans-serif;
+}
+
+@layer base {
+    * {
+        @apply border-white/10;
+    }
+
+    html {
+        font-family: var(--font-sans);
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-[#0a0e17] text-white antialiased overflow-x-hidden;
+    }
+
+    ::selection {
+        @apply bg-cyan-500/30 text-white;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-cyan-500/30 rounded-full;
+    }
+}
+
+@layer components {
+    .glass {
+        @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+    }
+
+    .glass-card {
+        @apply bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+    }
+
+    .glow-text {
+        text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+    }
+
+    .glow-box {
+        box-shadow: 0 0 30px rgba(0, 217, 255, 0.3), inset 0 0 30px rgba(0, 217, 255, 0.1);
+    }
+
+    .gradient-text {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500;
+    }
+
+    .animate-glow {
+        animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .animate-pulse-glow {
+        animation: pulseGlow 2s ease-in-out infinite;
+    }
+
+    .terminal-line::before {
+        content: '>';
+        @apply text-cyan-400 mr-2;
+    }
+}
+
+@layer utilities {
+    .font-mono {
+        font-family: var(--font-mono);
+    }
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    }
+
+    to {
+        text-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+/* Neural Network Animation */
+@keyframes neuralPulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        stroke-dashoffset: 1000;
+    }
+
+    50% {
+        opacity: 1;
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Data Flow Animation */
+@keyframes dataFlow {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Typing Cursor */
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.cursor-blink::after {
+    content: '|';
+    animation: blink 1s infinite;
+    @apply text-cyan-400 ml-1;
+}
+
+/* ==========================================
+   Mobile Responsive Styles
+   ========================================== */
+
+/* Small Mobile Devices (up to 480px) */
+@media (max-width: 480px) {
+    html {
+        font-size: 14px;
+    }
+
+    body {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .glass-card {
+        @apply rounded-xl;
+    }
+
+    /* Reduce animation intensity for performance */
+    .animate-float {
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .glow-text {
+        text-shadow: 0 0 10px currentColor;
+    }
+
+    .glow-box {
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+    }
+}
+
+/* Mobile Devices (up to 640px) */
+@media (max-width: 640px) {
+    .glass {
+        @apply backdrop-blur-lg;
+    }
+
+    .glass-card {
+        @apply p-4;
+    }
+
+    /* Simplified glow effects for mobile performance */
+    @keyframes glow {
+        from {
+            text-shadow: 0 0 8px currentColor;
+        }
+
+        to {
+            text-shadow: 0 0 15px currentColor;
+        }
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Smaller skill tags on mobile */
+    .skill-tag {
+        @apply px-2 py-1 text-xs;
+    }
+}
+
+/* Tablet and below (up to 768px) */
+@media (max-width: 768px) {
+    .gradient-text {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500;
+    }
+
+    /* Remove hover effects on touch devices */
+    @media (hover: none) {
+        .group:hover .group-hover\:opacity-100 {
+            opacity: 0;
+        }
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Disable hover-based animations on touch devices */
+    .animate-pulse-glow {
+        animation: none;
+        opacity: 0.7;
+    }
+
+    /* Make tap targets larger */
+    button,
+    a,
+    [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Improve scrolling performance */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* Landscape mobile orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+    .glass-card {
+        @apply p-3;
+    }
+}
+
+/* Print styles - hide decorative elements */
+@media print {
+
+    .animate-float,
+    .animate-glow,
+    .animate-pulse-glow {
+        animation: none !important;
+    }
+
+    canvas {
+        display: none !important;
+    }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .animate-float,
+    .animate-glow,
+    .animate-pulse-glow,
+    .cursor-blink::after {
+        animation: none !important;
+    }
+}
