@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
     User, Briefcase, Code, Award, Mail, FolderGit2,
     Cpu, Cloud, Database, GitBranch, Sparkles,
-    Linkedin, ExternalLink, MapPin, GraduationCap, Github
+    Linkedin, ExternalLink, MapPin, GraduationCap, Github, Palette
 } from 'lucide-react';
 import NeuralBackground from '../Background/NeuralBackground';
 import ParticleWave from '../Background/ParticleWave';
@@ -38,13 +38,14 @@ const cardHover = {
     transition: { duration: 0.3 }
 };
 
-// Glass Card Component with enhanced hover effects
+// Glass Card Component with enhanced hover effects and theme-aware gradients
 const GlassCard: React.FC<{
     children: React.ReactNode;
     className?: string;
     delay?: number;
     hover?: boolean;
-}> = ({ children, className = '', delay = 0, hover = true }) => (
+    theme: { accent: string; from: string; to: string };
+}> = ({ children, className = '', delay = 0, hover = true, theme }) => (
     <motion.div
         initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
         whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -53,16 +54,27 @@ const GlassCard: React.FC<{
         whileHover={hover ? cardHover : undefined}
         className={`group relative ${className}`}
     >
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
-        <div className="relative glass-card p-6 h-full hover:border-white/20 transition-all duration-500">
+        <div
+            className="absolute -inset-0.5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700"
+            style={{
+                background: `linear-gradient(to right, ${theme.from}33, ${theme.accent}33, ${theme.to}33)`
+            }}
+        />
+        <div
+            className="relative backdrop-blur-md border rounded-2xl p-6 h-full hover:border-white/20 transition-all duration-500"
+            style={{
+                background: `linear-gradient(135deg, ${theme.from}30, ${theme.accent}20, ${theme.to}30)`,
+                borderColor: `${theme.accent}30`
+            }}
+        >
             {children}
         </div>
     </motion.div>
 );
 
 // Section Header with animation
-const SectionHeader: React.FC<{ icon: React.ReactNode; title: string; color: string; delay?: number }> = ({
-    icon, title, color, delay = 0
+const SectionHeader: React.FC<{ icon: React.ReactNode; title: string; theme: { accent: string; from: string; to: string }; delay?: number }> = ({
+    icon, title, theme, delay = 0
 }) => (
     <motion.div
         initial={{ opacity: 0, x: -30 }}
@@ -71,41 +83,107 @@ const SectionHeader: React.FC<{ icon: React.ReactNode; title: string; color: str
         transition={{ duration: 0.5, delay }}
         className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8"
     >
-        <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-${color}-500/10 border border-${color}-500/20 shadow-lg shadow-${color}-500/10`}>
+        <div
+            className="p-2 sm:p-3 rounded-lg sm:rounded-xl border shadow-lg"
+            style={{
+                backgroundColor: `${theme.accent}10`,
+                borderColor: `${theme.accent}33`,
+                boxShadow: `0 4px 6px -1px ${theme.accent}10`
+            }}
+        >
             {icon}
         </div>
-        <h2 className={`text-xl sm:text-2xl font-bold text-${color}-400 tracking-wide`}>{title}</h2>
+        <h2
+            className="text-xl sm:text-2xl font-bold tracking-wide"
+            style={{ color: theme.accent }}
+        >
+            {title}
+        </h2>
     </motion.div>
 );
 
 // Skill Tag with hover
-const SkillTag: React.FC<{ name: string; delay?: number }> = ({ name, delay = 0 }) => (
+const SkillTag: React.FC<{ name: string; delay?: number; theme: { accent: string; textColor: string } }> = ({ name, delay = 0, theme }) => (
     <motion.span
         initial={{ opacity: 0, scale: 0.8 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.3, delay }}
-        whileHover={{ scale: 1.1, borderColor: 'rgba(34, 211, 238, 0.5)' }}
-        className="px-3 py-1.5 text-xs font-mono bg-white/5 border border-white/10 rounded-full text-white/70 hover:text-cyan-300 transition-all duration-300 cursor-default"
+        whileHover={{ scale: 1.1 }}
+        className="px-3 py-1.5 text-xs font-mono rounded-full transition-all duration-300 cursor-default"
+        style={{
+            color: `${theme.textColor}CC`,
+            backgroundColor: `${theme.accent}15`,
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: `${theme.accent}40`
+        }}
     >
         {name}
     </motion.span>
 );
 
+const THEMES = [
+    { name: 'Aurora', accent: '#22d3ee', from: '#06b6d4', to: '#3b82f6', bg: '#0a0e17', textColor: '#ffffff' },
+    { name: 'Cyber', accent: '#a855f7', from: '#8b5cf6', to: '#ec4899', bg: '#1a0a1f', textColor: '#ffffff' },
+    { name: 'Matrix', accent: '#10b981', from: '#059669', to: '#14b8a6', bg: '#0a1410', textColor: '#ffffff' },
+    { name: 'Sunset', accent: '#f97316', from: '#fb923c', to: '#f43f5e', bg: '#fef3e2', textColor: '#1a0f0a' },
+    { name: 'Neon', accent: '#a855f7', from: '#facc15', to: '#a855f7', bg: '#f5f3ff', textColor: '#1a160a' },
+];
+
+// Helper function to get icon color based on theme
+const getIconColor = (baseColor: string, themeName: string): string => {
+    const isLightTheme = themeName === 'Sunset' || themeName === 'Neon';
+    const colorMap: { [key: string]: string } = {
+        'cyan': isLightTheme ? '#0891b2' : '#22d3ee',
+        'purple': isLightTheme ? '#7c3aed' : '#a78bfa',
+        'emerald': isLightTheme ? '#059669' : '#34d399',
+        'amber': isLightTheme ? '#d97706' : '#fbbf24',
+        'rose': isLightTheme ? '#e11d48' : '#fb7185',
+        'blue': isLightTheme ? '#2563eb' : '#60a5fa',
+    };
+    return colorMap[baseColor] || baseColor;
+};
+
 const Portfolio: React.FC = () => {
     const [nameComplete, setNameComplete] = useState(false);
     const [introComplete, setIntroComplete] = useState(false);
+    const [themeIndex, setThemeIndex] = useState(0);
+    const currentTheme = THEMES[themeIndex];
+
+    const cycleTheme = () => {
+        setThemeIndex((prev) => (prev + 1) % THEMES.length);
+    };
 
     return (
-        <div className="min-h-screen w-full bg-[#0a0e17] relative overflow-hidden">
+        <motion.div
+            className="min-h-screen w-full relative overflow-hidden"
+            animate={{ backgroundColor: currentTheme.bg, color: currentTheme.textColor }}
+            transition={{ duration: 1 }}
+        >
             <ParticleWave />
             <NeuralBackground />
 
             {/* Floating gradient orbs */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float" />
-                <div className="absolute top-1/2 -right-32 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-                <div className="absolute bottom-1/4 left-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+                <motion.div
+                    className="absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-3xl animate-float"
+                    animate={{ backgroundColor: currentTheme.from }}
+                    transition={{ duration: 1 }}
+                    style={{ opacity: 0.15 }}
+                />
+                <motion.div
+                    className="absolute top-1/2 -right-32 w-96 h-96 rounded-full blur-3xl animate-float"
+                    animate={{ backgroundColor: currentTheme.to }}
+                    transition={{ duration: 1 }}
+                    style={{ animationDelay: '2s', opacity: 0.15 }}
+                />
+                <motion.div
+                    className="absolute bottom-1/4 left-1/2 w-64 h-64 rounded-full blur-3xl animate-float"
+                    animate={{ backgroundColor: currentTheme.accent }}
+                    transition={{ duration: 1 }}
+                    style={{ animationDelay: '4s', opacity: 0.15 }}
+                />
             </div>
 
 
@@ -118,15 +196,47 @@ const Portfolio: React.FC = () => {
                     className="mb-8 sm:mb-12 lg:mb-16"
                 >
                     {/* Terminal Window */}
-                    <div className="glass-card rounded-2xl overflow-hidden border border-white/10">
+                    <div
+                        className="rounded-2xl overflow-hidden border backdrop-blur-md transition-all duration-1000"
+                        style={{
+                            background: `linear-gradient(135deg, ${currentTheme.from}30, ${currentTheme.accent}20, ${currentTheme.to}30)`,
+                            borderColor: `${currentTheme.accent}30`
+                        }}
+                    >
                         {/* Terminal Header */}
-                        <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border-b border-white/10">
-                            <div className="flex gap-2">
-                                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                                <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                                <span className="w-3 h-3 rounded-full bg-green-500/80" />
+                        <div
+                            className="flex items-center justify-between gap-2 px-4 py-3 border-b transition-all duration-1000"
+                            style={{
+                                backgroundColor: `${currentTheme.accent}15`,
+                                borderColor: `${currentTheme.accent}30`
+                            }}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="flex gap-2">
+                                    <span className="w-3 h-3 rounded-full bg-red-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-green-500/80" />
+                                </div>
+                                <span className="text-sm font-mono ml-4" style={{ color: `${currentTheme.textColor}66` }}>revanth@portfolio ~ </span>
                             </div>
-                            <span className="text-white/40 text-sm font-mono ml-4">revanth@portfolio ~ </span>
+
+                            {/* Theme Switcher Button */}
+                            <motion.button
+                                onClick={cycleTheme}
+                                whileHover={{ scale: 1.15 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="p-1.5 rounded-lg transition-all duration-300 hover:shadow-lg relative group"
+                                style={{
+                                    backgroundColor: `${currentTheme.accent}20`,
+                                    borderWidth: '2px',
+                                    borderColor: currentTheme.accent,
+                                    boxShadow: `0 0 15px ${currentTheme.accent}40`
+                                }}
+                                title={`Current: ${currentTheme.name} - Click to cycle themes`}
+                                aria-label="Cycle theme"
+                            >
+                                <Palette className="w-3.5 h-3.5" style={{ color: currentTheme.accent }} />
+                            </motion.button>
                         </div>
 
                         {/* Terminal Content - Two Columns */}
@@ -137,9 +247,10 @@ const Portfolio: React.FC = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.3 }}
-                                    className="font-mono text-white/50 mb-4"
+                                    className="font-mono mb-4"
+                                    style={{ color: `${currentTheme.textColor}80` }}
                                 >
-                                    <span className="text-cyan-400">$</span> whoami
+                                    <span style={{ color: currentTheme.accent }}>$</span> whoami
                                 </motion.div>
                                 <motion.h1
                                     initial={{ opacity: 0 }}
@@ -147,7 +258,12 @@ const Portfolio: React.FC = () => {
                                     transition={{ delay: 0.5, duration: 0.8 }}
                                     className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4"
                                 >
-                                    <span className="gradient-text glow-text">
+                                    <span
+                                        className="glow-text bg-clip-text text-transparent bg-gradient-to-r"
+                                        style={{
+                                            backgroundImage: `linear-gradient(to right, ${currentTheme.from}, ${currentTheme.to})`
+                                        }}
+                                    >
                                         <TypingEffect
                                             text="Revanth B"
                                             speed={80}
@@ -160,7 +276,8 @@ const Portfolio: React.FC = () => {
                                     <motion.p
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="text-sm sm:text-base md:text-lg lg:text-xl text-cyan-400 font-mono"
+                                        className="text-sm sm:text-base md:text-lg lg:text-xl font-mono"
+                                        style={{ color: currentTheme.accent }}
                                     >
                                         Associate Software Engineer | AI, Automation & Cloud
                                     </motion.p>
@@ -176,8 +293,8 @@ const Portfolio: React.FC = () => {
                                     className="flex flex-col justify-center space-y-4 font-mono"
                                 >
                                     <div className="space-y-3">
-                                        <h3 className="text-purple-400 text-sm font-semibold uppercase tracking-wider">Professional Summary</h3>
-                                        <p className="text-white/70 leading-relaxed text-sm">
+                                        <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: currentTheme.accent }}>Professional Summary</h3>
+                                        <p className="leading-relaxed text-sm" style={{ color: `${currentTheme.textColor}B3` }}>
                                             Associate Software Engineer with hands-on experience in automation engineering, cloud-native systems, and applied AI. Strong background in building scalable automation frameworks, validating large-scale data migrations, and developing AI-powered applications including RAG pipelines and agentic chatbots using local LLMs.
                                         </p>
                                     </div>
@@ -188,8 +305,8 @@ const Portfolio: React.FC = () => {
                                         transition={{ delay: 0.3 }}
                                         className="pt-4 border-t border-white/10"
                                     >
-                                        <p className="text-white/50 text-sm leading-relaxed">
-                                            <span className="text-cyan-400">$</span> Building automation frameworks, AI-powered applications and cloud-native systems.
+                                        <p className="text-sm leading-relaxed" style={{ color: `${currentTheme.textColor}80` }}>
+                                            <span style={{ color: currentTheme.accent }}>$</span> Building automation frameworks, AI-powered applications and cloud-native systems.
                                         </p>
                                     </motion.div>
 
@@ -200,7 +317,14 @@ const Portfolio: React.FC = () => {
                                                 initial={{ opacity: 0, scale: 0 }}
                                                 animate={{ opacity: 1, scale: 1 }}
                                                 transition={{ delay: 0.4 + i * 0.1, type: 'spring' }}
-                                                className="px-3 py-1 text-xs font-mono rounded-lg bg-white/5 border border-white/10 text-white/60"
+                                                className="px-3 py-1 text-xs font-mono rounded-lg"
+                                                style={{
+                                                    color: `${currentTheme.textColor}CC`,
+                                                    backgroundColor: `${currentTheme.accent}15`,
+                                                    borderWidth: '1px',
+                                                    borderStyle: 'solid',
+                                                    borderColor: `${currentTheme.accent}40`
+                                                }}
                                             >
                                                 {tech}
                                             </motion.span>
@@ -222,9 +346,9 @@ const Portfolio: React.FC = () => {
                     >
                         {/* About Section - Bento Grid */}
                         <section>
-                            <SectionHeader icon={<User className="w-5 h-5 text-cyan-400" />} title="About Me" color="cyan" />
+                            <SectionHeader icon={<User className="w-5 h-5" style={{ color: currentTheme.accent }} />} title="About Me" theme={currentTheme} />
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                                <GlassCard className="lg:col-span-8" delay={0.1}>
+                                <GlassCard className="lg:col-span-8" delay={0.1} theme={currentTheme}>
                                     <div className="flex flex-col sm:flex-row items-start gap-6">
                                         <motion.div
                                             whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
@@ -234,40 +358,41 @@ const Portfolio: React.FC = () => {
                                             <User className="w-10 h-10 text-cyan-400" />
                                         </motion.div>
                                         <div className="flex-1">
-                                            <h3 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-400 mb-2">
+                                            <h3
+                                                className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r mb-2"
+                                                style={{
+                                                    backgroundImage: `linear-gradient(to right, ${currentTheme.from}, ${currentTheme.to})`
+                                                }}
+                                            >
                                                 Revanth B
                                             </h3>
-                                            <p className="text-white/50 text-lg mb-4">Associate Software Engineer @ BETSOL</p>
-                                            <p className="text-white/40 leading-relaxed text-sm">
-                                                Hands-on experience in
-                                                <span className="text-cyan-400"> automation engineering</span>,
-                                                <span className="text-purple-400"> cloud-native systems</span>, and
-                                                <span className="text-emerald-400"> applied AI</span>.
-                                                Building scalable test automation frameworks, validating large-scale data migrations, and developing AI-powered applications including RAG pipelines and agentic chatbots using local LLMs.
+                                            <p className="text-lg mb-4" style={{ color: currentTheme.name === 'Sunset' || currentTheme.name === 'Neon' ? `${currentTheme.textColor}E6` : `${currentTheme.textColor}80` }}>Associate Software Engineer @ BETSOL</p>
+                                            <p className="leading-relaxed text-sm" style={{ color: `${currentTheme.textColor}80` }}>
+                                                Hands-on experience in automation engineering, cloud-native systems, and applied AI. Building scalable test automation frameworks, validating large-scale data migrations, and developing AI-powered applications including RAG pipelines and agentic chatbots using local LLMs.
                                             </p>
                                         </div>
                                     </div>
                                 </GlassCard>
 
-                                <GlassCard className="lg:col-span-4" delay={0.2}>
+                                <GlassCard className="lg:col-span-4" delay={0.2} theme={currentTheme}>
                                     <div className="space-y-5">
                                         <motion.div whileHover={{ x: 5 }} className="flex items-center gap-4 text-sm group">
                                             <div className="p-2 rounded-lg bg-cyan-500/10 group-hover:bg-cyan-500/20 transition-colors">
-                                                <MapPin className="w-4 h-4 text-cyan-400" />
+                                                <MapPin className="w-4 h-4" style={{ color: getIconColor('cyan', currentTheme.name) }} />
                                             </div>
-                                            <span className="text-white/70">Bengaluru, India</span>
+                                            <span className="" style={{ color: `${currentTheme.textColor}B3` }}>Bengaluru, India</span>
                                         </motion.div>
                                         <motion.div whileHover={{ x: 5 }} className="flex items-center gap-4 text-sm group">
                                             <div className="p-2 rounded-lg bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
-                                                <GraduationCap className="w-4 h-4 text-purple-400" />
+                                                <GraduationCap className="w-4 h-4" style={{ color: getIconColor('purple', currentTheme.name) }} />
                                             </div>
-                                            <span className="text-white/70">B.Tech CSE '24</span>
+                                            <span className="" style={{ color: `${currentTheme.textColor}B3` }}>B.Tech CSE '24</span>
                                         </motion.div>
                                         <motion.div whileHover={{ x: 5 }} className="flex items-center gap-4 text-sm group">
                                             <div className="p-2 rounded-lg bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
-                                                <Briefcase className="w-4 h-4 text-emerald-400" />
+                                                <Briefcase className="w-4 h-4" style={{ color: getIconColor('emerald', currentTheme.name) }} />
                                             </div>
-                                            <span className="text-white/70">1+ Years Experience</span>
+                                            <span className="" style={{ color: `${currentTheme.textColor}B3` }}>1+ Years Experience</span>
                                         </motion.div>
                                     </div>
                                 </GlassCard>
@@ -276,32 +401,32 @@ const Portfolio: React.FC = () => {
 
                         {/* Experience Section */}
                         <section>
-                            <SectionHeader icon={<Briefcase className="w-5 h-5 text-emerald-400" />} title="Experience" color="emerald" />
+                            <SectionHeader icon={<Briefcase className="w-5 h-5" style={{ color: currentTheme.accent }} />} title="Experience" theme={currentTheme} />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                                <GlassCard delay={0.1}>
+                                <GlassCard delay={0.1} theme={currentTheme}>
                                     <div className="flex items-center gap-2 mb-4">
                                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50" />
                                         <span className="text-xs font-mono text-emerald-400/70 uppercase tracking-wider">Current</span>
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">CVS Health (Project: EVOS)</h3>
-                                    <p className="text-cyan-400 mb-1">BETSOL</p>
-                                    <p className="text-xs text-white/40 mb-4">Automation Engineering & Software Development</p>
-                                    <ul className="text-sm text-white/50 leading-relaxed space-y-2">
+                                    <h3 className="text-xl font-bold mb-2" style={{ color: currentTheme.accent }}>CVS Health (Project: EVOS)</h3>
+                                    <p className="mb-1" style={{ color: currentTheme.accent }}>BETSOL</p>
+                                    <p className="text-xs mb-4" style={{ color: `${currentTheme.textColor}CC` }}>Automation Engineering & Software Development</p>
+                                    <ul className="text-sm leading-relaxed space-y-2" style={{ color: `${currentTheme.textColor}80` }}>
                                         <li>• Built automation framework with Python, Selenium, PyTest & Allure</li>
                                         <li>• Automated validation of 600K+ TFNs, reducing execution to under 2 hours</li>
                                         <li>• Developed custom scripts for bulk data validation & integrity checks</li>
                                     </ul>
                                 </GlassCard>
 
-                                <GlassCard delay={0.2}>
+                                <GlassCard delay={0.2} theme={currentTheme}>
                                     <div className="flex items-center gap-2 mb-4">
                                         <span className="w-2 h-2 rounded-full bg-purple-400" />
                                         <span className="text-xs font-mono text-purple-400/70 uppercase tracking-wider">Previous</span>
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">Avaya HCS (Cloud Support)</h3>
-                                    <p className="text-purple-400 mb-1">BETSOL</p>
-                                    <p className="text-xs text-white/40 mb-4">Azure Kubernetes Service (AKS)</p>
-                                    <ul className="text-sm text-white/50 leading-relaxed space-y-2">
+                                    <h3 className="text-xl font-bold mb-2" style={{ color: currentTheme.accent }}>Avaya HCS (Cloud Support)</h3>
+                                    <p className="mb-1" style={{ color: currentTheme.accent }}>BETSOL</p>
+                                    <p className="text-xs mb-4" style={{ color: `${currentTheme.textColor}CC` }}>Azure Kubernetes Service (AKS)</p>
+                                    <ul className="text-sm leading-relaxed space-y-2" style={{ color: `${currentTheme.textColor}80` }}>
                                         <li>• Supported Avaya Hybrid Cloud Services hosted on Azure AKS</li>
                                         <li>• Monitored with Grafana & Prometheus for proactive issue resolution</li>
                                         <li>• Performed root cause analysis & incident resolution in production</li>
@@ -312,7 +437,7 @@ const Portfolio: React.FC = () => {
 
                         {/* Projects Section */}
                         <section>
-                            <SectionHeader icon={<FolderGit2 className="w-5 h-5 text-cyan-400" />} title="Projects" color="cyan" />
+                            <SectionHeader icon={<FolderGit2 className="w-5 h-5" style={{ color: currentTheme.accent }} />} title="Projects" theme={currentTheme} />
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                 {[
                                     {
@@ -340,30 +465,31 @@ const Portfolio: React.FC = () => {
                                         link: 'https://github.com/rev369/Playwright-MCP'
                                     }
                                 ].map((project, i) => (
-                                    <GlassCard key={project.title} delay={i * 0.1}>
+                                    <GlassCard key={project.title} delay={i * 0.1} theme={currentTheme}>
                                         <div className="flex flex-col h-full">
                                             <div className="flex items-start justify-between mb-5">
                                                 <motion.div
                                                     whileHover={{ rotate: 15, scale: 1.1 }}
                                                     className={`p-3 rounded-xl bg-${project.color}-500/10 border border-${project.color}-500/20`}
                                                 >
-                                                    <project.icon className={`w-5 h-5 text-${project.color}-400`} />
+                                                    <project.icon className="w-5 h-5" style={{ color: getIconColor(project.color, currentTheme.name) }} />
                                                 </motion.div>
                                                 <motion.a
                                                     whileHover={{ scale: 1.2, rotate: -10 }}
                                                     href={project.link}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-white/40 hover:text-cyan-400 transition-colors"
+                                                    className="transition-colors"
+                                                    style={{ color: `${currentTheme.textColor}66` }}
                                                 >
                                                     <Github className="w-5 h-5" />
                                                 </motion.a>
                                             </div>
-                                            <h3 className="text-lg font-bold text-white mb-3">{project.title}</h3>
-                                            <p className="text-sm text-white/50 mb-5 leading-relaxed flex-grow">{project.desc}</p>
+                                            <h3 className="text-lg font-bold mb-3" style={{ color: currentTheme.accent }}>{project.title}</h3>
+                                            <p className="text-sm mb-5 leading-relaxed flex-grow" style={{ color: `${currentTheme.textColor}CC` }}>{project.desc}</p>
                                             <div className="flex flex-wrap gap-2 mt-auto">
                                                 {project.tags.map((tag, j) => (
-                                                    <SkillTag key={tag} name={tag} delay={j * 0.05} />
+                                                    <SkillTag key={tag} name={tag} delay={j * 0.05} theme={currentTheme} />
                                                 ))}
                                             </div>
                                         </div>
@@ -374,21 +500,21 @@ const Portfolio: React.FC = () => {
 
                         {/* Skills Section */}
                         <section>
-                            <SectionHeader icon={<Code className="w-5 h-5 text-purple-400" />} title="Skills" color="purple" />
+                            <SectionHeader icon={<Code className="w-5 h-5" style={{ color: currentTheme.accent }} />} title="Skills" theme={currentTheme} />
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                 {[
                                     { icon: Cpu, color: 'cyan', title: 'AI & LLMs', skills: ['LangChain', 'LangGraph', 'RAG', 'Ollama', 'Agentic Systems'] },
                                     { icon: Cloud, color: 'purple', title: 'Cloud & DevOps', skills: ['Azure AKS', 'Docker', 'Grafana', 'Prometheus'] },
                                     { icon: Database, color: 'amber', title: 'Testing & Tools', skills: ['Selenium', 'PyTest', 'Allure', 'Python'] }
                                 ].map((category, i) => (
-                                    <GlassCard key={category.title} delay={i * 0.1}>
+                                    <GlassCard key={category.title} delay={i * 0.1} theme={currentTheme}>
                                         <div className="flex items-center gap-3 mb-5">
-                                            <category.icon className={`w-5 h-5 text-${category.color}-400`} />
+                                            <category.icon className="w-5 h-5" style={{ color: getIconColor(category.color, currentTheme.name) }} />
                                             <span className={`text-sm font-semibold text-${category.color}-400`}>{category.title}</span>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {category.skills.map((skill, j) => (
-                                                <SkillTag key={skill} name={skill} delay={j * 0.05} />
+                                                <SkillTag key={skill} name={skill} delay={j * 0.05} theme={currentTheme} />
                                             ))}
                                         </div>
                                     </GlassCard>
@@ -398,7 +524,7 @@ const Portfolio: React.FC = () => {
 
                         {/* Certifications Section */}
                         <section>
-                            <SectionHeader icon={<Award className="w-5 h-5 text-amber-400" />} title="Certifications" color="amber" />
+                            <SectionHeader icon={<Award className="w-5 h-5" style={{ color: currentTheme.accent }} />} title="Certifications" theme={currentTheme} />
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 {[
                                     { name: 'Oracle Cloud Infrastructure Architect Associate', icon: Cloud, color: 'cyan', link: 'https://catalog-education.oracle.com/ords/certview/sharebadge?id=634B0D579BD9DA57B80EFBC2D0AB3D390844E04F5B50A7B981FF43944D97341F' },
@@ -409,12 +535,12 @@ const Portfolio: React.FC = () => {
                                     { name: 'Getting started with AWS Machine Learning - Coursera', icon: Cloud, color: 'amber', link: 'https://www.coursera.org/account/accomplishments/verify/E85BD2SEV6XZ' },
                                 ].map((cert, i) => (
                                     <a key={i} href={cert.link} target="_blank" rel="noopener noreferrer" className="block">
-                                        <GlassCard delay={i * 0.1}>
+                                        <GlassCard delay={i * 0.1} theme={currentTheme}>
                                             <motion.div whileHover={{ x: 5 }} className="flex items-center gap-4 cursor-pointer">
                                                 <div className={`p-2 rounded-lg bg-${cert.color}-500/10`}>
-                                                    <cert.icon className={`w-5 h-5 text-${cert.color}-400`} />
+                                                    <cert.icon className="w-5 h-5" style={{ color: getIconColor(cert.color, currentTheme.name) }} />
                                                 </div>
-                                                <span className="text-sm text-white/80 hover:text-cyan-400 transition-colors">{cert.name}</span>
+                                                <span className="text-sm transition-colors" style={{ color: `${currentTheme.textColor}CC` }}>{cert.name}</span>
                                             </motion.div>
                                         </GlassCard>
                                     </a>
@@ -424,23 +550,23 @@ const Portfolio: React.FC = () => {
 
                         {/* Contact Section */}
                         <section>
-                            <SectionHeader icon={<Mail className="w-5 h-5 text-rose-400" />} title="Connect" color="rose" />
+                            <SectionHeader icon={<Mail className="w-5 h-5" style={{ color: currentTheme.accent }} />} title="Connect" theme={currentTheme} />
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <motion.a
                                     href="mailto:revanthbashyam2002@gmail.com"
                                     whileHover={{ scale: 1.02 }}
                                     className="block"
                                 >
-                                    <GlassCard delay={0.1} hover={false}>
+                                    <GlassCard delay={0.1} hover={false} theme={currentTheme}>
                                         <div className="flex items-center gap-5">
                                             <motion.div
                                                 whileHover={{ rotate: [0, -10, 10, 0] }}
                                                 className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20"
                                             >
-                                                <Mail className="w-6 h-6 text-rose-400" />
+                                                <Mail className="w-6 h-6" style={{ color: getIconColor('rose', currentTheme.name) }} />
                                             </motion.div>
                                             <div>
-                                                <p className="text-xs text-white/40 mb-1">Email</p>
+                                                <p className="text-xs mb-1" style={{ color: `${currentTheme.textColor}CC` }}>Email</p>
                                                 <p className="text-cyan-400 font-mono hover:text-cyan-300 transition-colors text-xs sm:text-sm md:text-base break-all">
                                                     revanthbashyam2002@gmail.com
                                                 </p>
@@ -456,16 +582,16 @@ const Portfolio: React.FC = () => {
                                     whileHover={{ scale: 1.02 }}
                                     className="block"
                                 >
-                                    <GlassCard delay={0.2} hover={false}>
+                                    <GlassCard delay={0.2} hover={false} theme={currentTheme}>
                                         <div className="flex items-center gap-5">
                                             <motion.div
                                                 whileHover={{ rotate: [0, -10, 10, 0] }}
                                                 className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20"
                                             >
-                                                <Linkedin className="w-6 h-6 text-blue-400" />
+                                                <Linkedin className="w-6 h-6" style={{ color: getIconColor('blue', currentTheme.name) }} />
                                             </motion.div>
                                             <div>
-                                                <p className="text-xs text-white/40 mb-1">LinkedIn</p>
+                                                <p className="text-xs mb-1" style={{ color: `${currentTheme.textColor}CC` }}>LinkedIn</p>
                                                 <p className="text-blue-400 font-mono hover:text-blue-300 transition-colors flex items-center gap-2">
                                                     /revanth-b <ExternalLink className="w-4 h-4" />
                                                 </p>
@@ -483,14 +609,14 @@ const Portfolio: React.FC = () => {
                             viewport={{ once: true }}
                             className="text-center pt-16 pb-8"
                         >
-                            <p className="text-white/30 text-sm font-mono">
+                            <p className="text-sm font-mono" style={{ color: `${currentTheme.textColor}4D` }}>
                                 Built with <span className="text-rose-400">♥</span> using Next.js & Framer Motion
                             </p>
                         </motion.footer>
                     </motion.div>
                 )}
             </main>
-        </div>
+        </motion.div>
     );
 };
 

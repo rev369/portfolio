@@ -7,7 +7,7 @@ import Output from './Output';
 import NeuralBackground from '../Background/NeuralBackground';
 import TypingEffect from './TypingEffect';
 import { motion } from 'framer-motion';
-import { Cpu, Cloud, GitBranch, Sparkles } from 'lucide-react';
+import { Cpu, Cloud, GitBranch, Sparkles, Palette } from 'lucide-react';
 
 const FloatingIcon: React.FC<{ icon: React.ReactNode; className: string; delay: number }> = ({ icon, className, delay }) => (
     <motion.div
@@ -23,7 +23,7 @@ const FloatingIcon: React.FC<{ icon: React.ReactNode; className: string; delay: 
 );
 
 const Terminal: React.FC = () => {
-    const { state, handleInputChange, handleKeyDown } = useTerminal();
+    const { state, handleInputChange, handleKeyDown, cycleTheme } = useTerminal();
     const { history, currentInput, theme, isProcessing } = state;
     const [nameComplete, setNameComplete] = useState(false);
     const [introComplete, setIntroComplete] = useState(false);
@@ -56,6 +56,34 @@ const Terminal: React.FC = () => {
                 className="top-60 right-[30%]"
                 delay={1.4}
             />
+
+            {/* Theme Switcher Button */}
+            <motion.button
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                onClick={cycleTheme}
+                className="fixed top-4 left-4 z-[100] group"
+                aria-label="Cycle theme"
+                title="Click to cycle themes"
+            >
+                <div
+                    className="relative w-12 h-12 rounded-full backdrop-blur-xl border-2 transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center justify-center"
+                    style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        borderColor: theme.accent,
+                        boxShadow: `0 0 20px ${theme.accent}40`
+                    }}
+                >
+                    <Palette className="w-5 h-5 transition-all duration-300" style={{ color: theme.accent }} />
+                    <div
+                        className="absolute inset-0 rounded-full bg-gradient-to-br opacity-20 group-hover:opacity-40 transition-opacity duration-300"
+                        style={{
+                            backgroundImage: `linear-gradient(135deg, ${theme.gradientFrom}, ${theme.gradientTo})`
+                        }}
+                    />
+                </div>
+            </motion.button>
 
             <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-40">
                 {/* Hero Header with Typing Effect */}

@@ -45,6 +45,17 @@ export const THEMES: Record<string, TerminalTheme> = {
         gradientFrom: '#ff6b6b',
         gradientTo: '#ffa502',
     },
+    neon: {
+        name: 'neon',
+        background: '#0d0d0d',
+        foreground: '#e0e0e0',
+        prompt: '#ff00ff',
+        accent: '#00ffff',
+        selection: '#333333',
+        cursor: '#ff00ff',
+        gradientFrom: '#ff00ff',
+        gradientTo: '#00ffff',
+    },
 };
 
 export const DEFAULT_THEME = THEMES.cyber;

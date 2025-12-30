@@ -120,6 +120,8 @@ export const useTerminal = () => {
         }
     };
 
+    const themeOrder = ['aurora', 'cyber', 'matrix', 'sunset', 'neon'];
+    const themeIndexRef = useRef(0);
     const setTheme = useCallback((themeName: string) => {
         const newTheme = THEMES[themeName];
         if (newTheme) {
@@ -129,6 +131,13 @@ export const useTerminal = () => {
         return false;
     }, []);
 
+    const cycleTheme = useCallback(() => {
+        const nextIndex = (themeIndexRef.current + 1) % themeOrder.length;
+        const nextName = themeOrder[nextIndex];
+        if (setTheme(nextName)) {
+            themeIndexRef.current = nextIndex;
+        }
+    }, [setTheme]);
     // Auto-initialize on mount
     const hasInitialized = useRef(false);
     useEffect(() => {
@@ -150,6 +159,7 @@ export const useTerminal = () => {
         handleInputChange,
         handleKeyDown,
         processCommand,
-        setTheme
+        setTheme,
+        cycleTheme
     };
 };
