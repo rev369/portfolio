@@ -4,10 +4,10 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
-    // Uncomment these lines for GitHub Pages deployment:
-    // output: 'export',
-    // basePath: '/portfolio',
-    // assetPrefix: '/portfolio/',
+    // GitHub Pages deployment configuration:
+    output: 'export',
+    basePath: '/portfolio',
+    assetPrefix: '/portfolio/',
 };
 
 module.exports = nextConfig;
